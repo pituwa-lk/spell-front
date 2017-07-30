@@ -1,5 +1,6 @@
 'use strict';
-
+//var host = "http://localhost:8080";
+var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -10,7 +11,7 @@ angular.module('myApp.view1', ['ngRoute'])
 }]).controller('View1Ctrl', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
 
     $interval(function () {
-        $http.get("http://localhost:8080/stats").then(function (res) {
+        $http.get(host + "/stats").then(function (res) {
             if (res.data.words - $scope.words != 0) {
                 $scope.wordDiff = res.data.words - $scope.words;
             }
@@ -31,7 +32,7 @@ angular.module('myApp.view1', ['ngRoute'])
         var pastedArea = document.getElementById("pastedArea");
         pastedArea.innerText = "";
         var words = $scope.doc.split(" ");
-        $http.post("http://localhost:8080/bulk", words).then(function (res) {
+        $http.post(host + "/bulk", words).then(function (res) {
             var result = res.data;
             Object.keys(result).map(function (v, k) {
                 var words = result[v];
@@ -114,7 +115,7 @@ angular.module('myApp.view1', ['ngRoute'])
     };
 
     $scope.retryLess = function (v, size) {
-        $http.get("http://localhost:8080/lookup?lookup=" + v + "&size=" + size).then(function (res) {
+        $http.get(host + "/lookup?lookup=" + v + "&size=" + size).then(function (res) {
             if (res.data.length !== 0) {
                 $scope.wordElms[v].data = res.data;
             }
