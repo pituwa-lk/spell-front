@@ -1,6 +1,6 @@
 'use strict';
-//var host = "http://localhost:8080";
-var host = "http://spell.pituwa.lk";
+var host = "http://localhost:8080";
+//var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -23,71 +23,51 @@ angular.module('myApp.view1', ['ngRoute'])
     $scope.wordDiff = 0;
     $scope.sites = 0;
     $scope.words = 0;
-    $scope.doc = "";
+    $scope.docElm = document.getElementById("pastedArea");
+    $scope.checkResult = document.getElementById('checkResult');
+    $scope.doc =  function () {
+        return document.getElementById("pastedArea").innerText;
+    };
     $scope.ndoc = "";
     $scope.result = {};
     $scope.handler = {};
     $scope.buttonName = "සිංහල අක්ෂර වින්යාස පරීක්ෂාව ";
     $scope.checkSpell = function () {
-        var pastedArea = document.getElementById("pastedArea");
-        pastedArea.innerText = "";
-        var words = $scope.doc.split(" ");
+        var words = $scope.doc().split(" ");
+
         $http.post(host + "/bulk", words).then(function (res) {
             var result = res.data;
-            Object.keys(result).map(function (v, k) {
-                var words = result[v];
-                var correct = (words.length !== 0) || words[0] === v;
-                $scope.wordElms[v].data = words;
-                if (correct) {
-                    $scope.wordElms[v].elms.forEach(function (v, k) {
-                      v.elm.style.color = "green";
+            $scope.docElm.innerHTML = "";
+            var errors = 0;
+            words.map(function (word) {
+                result[word] = result[word].reverse();
+                var correct = result[word][0] === word;
+                var elm = null;
+                if (!correct) {
+                    errors++;
+                    elm = document.createElement("span");
+                    elm.innerText = word;
+                    elm.style.backgroundColor = 'yellow';
+                    elm.data = result[word];
+                    elm.addEventListener("click", function (e) {
+                        $scope.handleDisplay(elm, e, word);
                     });
                 } else {
-                    $scope.wordElms[v].elms.forEach(function (v, k){
-                        v.elm.style.color = "red";
-                    });
+                    elm = document.createTextNode(word)
                 }
-            })
-        });
-
-    var temps = words.map(function(v, k) {
-          var elmWord = document.createElement("span");
-          var elmId = "WW" + k + v
-          elmWord.id = elmId;
-          elmWord.innerHTML = v;
-          elmWord.style.display = "inline-block";
-          elmWord.className = "word";
-          elmWord.addEventListener("click", function (e) {
-              $scope.handleDisplay(elmWord, e, v);
-          });
-          pastedArea.appendChild(elmWord);
-          var handler = null; //$scope.resultDraw.bind(elmWord, v);
-          return {word: v, elms: {elm: elmWord, handler: handler}}
-        });
-
-    $scope.wordElms = temps.reduce(function (acl, v) {
-        if (!acl[v.word]) acl[v.word] = { elms : [v.elms], data: [] };
-        else acl[v.word].elms.push(v.elms);
-        return acl;
-    }, {});
-    };
-
-    /*$scope.resultDraw = function(v, res) {
-        //var m = document.getElementById("WW" + k + v);
-        if (res.data.length === 0) {
-            this.style.color = "red";
-            $scope.retryLess(v, v.length - 2);
-        } else {
-            if (res.data[0] === v) {
-                this.style.color = "green";
+                $scope.docElm.appendChild(elm);
+                var space = document.createTextNode(" ");
+                $scope.docElm.appendChild(space);
+            });
+            if (errors === 0) {
+                $scope.checkResult.innerText = "සිය ලුවච නනිවැරදී";
             }
-            $scope.result[v] = res.data;
-        }
-    };*/
+        });
+    };
 
     $scope.handleDisplay = function (elm, me, word) {
         var ulx = document.getElementById("ulWordList");
-        var words  = $scope.wordElms[word].data;
+        var words  = elm.data;
 
         while(ulx.getElementsByTagName("li").length > 0) {
             var lis = ulx.getElementsByTagName("li");
@@ -113,16 +93,6 @@ angular.module('myApp.view1', ['ngRoute'])
         wordList.style.top = me.pageY + "px";
         wordList.style.left = (me.pageX + 50) + "px";
     };
-
-    $scope.retryLess = function (v, size) {
-        $http.get(host + "/lookup?lookup=" + v + "&size=" + size).then(function (res) {
-            if (res.data.length !== 0) {
-                $scope.wordElms[v].data = res.data;
-            }
-        })
-    }
-
-
 
 }]);
 

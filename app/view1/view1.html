@@ -5,11 +5,10 @@
 <hr class="style17">
 <div ng-controller="View1Ctrl">
     <div class="col-sm-12">
-        <textarea class="col-sm-6 writing" id="doc" cols="35" rows="15" ng-model="doc" placeholder="ඇතුලත් කරීම "></textarea>
-        <div class="col-sm-6 writing" id="pastedArea">පුතිපල</div>
+        <div class="col-sm-12 writing" id="pastedArea" ng-model="doc" contenteditable="true">පුතිපල</div>
     </div>
     <div class="col-sm-12 text-center" id="writePad">
-        <button class="btn btn-lg btn-success" ng-click=checkSpell()>පරීක්ෂාව ආරම්භ කිරීම</button>
+        <button class="btn btn-lg btn-success" ng-click=checkSpell()>පරීක්ෂාව ආරම්භ කිරීම</button><span id="checkResult"></span>
     </div>
 </div>
 <div class="col-sm-12 text-right">
