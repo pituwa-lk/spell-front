@@ -1,6 +1,6 @@
 'use strict';
-//var host = "http://localhost:8080";
-var host = "http://spell.pituwa.lk";
+var host = "http://localhost:8080";
+//var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -10,7 +10,7 @@ angular.module('myApp.view1', ['ngRoute'])
   });
 }]).controller('View1Ctrl', ['$scope', '$http', '$interval', function($scope, $http, $interval) {
 
-    $interval(function () {
+    /*$interval(function () {
         $http.get(host + "/stats").then(function (res) {
             if (res.data.words - $scope.words != 0) {
                 $scope.wordDiff = res.data.words - $scope.words;
@@ -18,7 +18,7 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.words = res.data.words;
             $scope.sites = res.data.sites;
         });
-    }, 30000);
+    }, 30000);*/
 
     $scope.wordDiff = 0;
     $scope.sites = 0;
@@ -34,8 +34,7 @@ angular.module('myApp.view1', ['ngRoute'])
     $scope.buttonName = "සිංහල අක්ෂර වින්යාස පරීක්ෂාව ";
     $scope.checkSpell = function () {
         var words = $scope.doc().split(" ");
-
-        $http.post(host + "/bulk", words).then(function (res) {
+        $http.post(host + "/spell", $scope.doc()).then(function (res) {
             var result = res.data;
             $scope.docElm.innerHTML = "";
             var errors = 0;
