@@ -16,15 +16,21 @@ angular.module('myApp.view1', ['ngRoute'])
     $scope.docElm = document.getElementById("pastedArea");
     $scope.checkResult = document.getElementById('checkResult');
     $scope.doc =  function () {
-        console.log({"object" : document.getElementById("pastedArea").innerText.replace("\&nbsp;", " ")});
-        return document.getElementById("pastedArea").innerText.replace("\&nbsp;", " ");
+        return document.getElementById("pastedArea").innerText;
     };
     $scope.ndoc = "";
     $scope.result = {};
     $scope.handler = {};
     $scope.buttonName = "සිංහල අක්ෂර වින්යාස පරීක්ෂාව ";
+    $scope.words = [];
+
+    $scope.alertMe = function (e) {
+        $scope.docElm.innerHTML = document.getElementById("pastedArea").innerText
+    };
+
     $scope.checkSpell = function () {
-        //var words = $scope.doc().split(" ");
+        $scope.words = $scope.doc().replace(/[\u00a0]/g, " ").replace(/&nbsp;/, " ").replace(/\s+g/, " ").split(" ");
+        console.log($scope.words);
         $http.post(host + "/spell", $scope.doc()).then(function (res) {
             var result = res.data;
             $scope.result = result;
@@ -35,42 +41,43 @@ angular.module('myApp.view1', ['ngRoute'])
                 range.collapse(true);
                 range.setStart($scope.docElm, 0);
             }
-            console.log(Object.keys(result));
-            Object.keys(result).forEach(function (v) {
-                var start = 0;
-                var childIndex = 0;
-                while (-1 != (start = range.toString().indexOf(v, 0))) {
-                    //var start = range.toString().indexOf(v);
-                    console.log(start);
-                    var end = start + v.length;
-                    range.setStart($scope.docElm.childNodes.item(childIndex), start);
-                    range.setEnd($scope.docElm.childNodes.item(childIndex), end);
-                    range.deleteContents();
+            var replacements = 0;
+            $scope.words.forEach(function (v) {
+                if (!result[v]) return;
+                var start = range.toString().indexOf(v);
+                var end = start + v.length;
+                range.setStart($scope.docElm.childNodes.item(replacements), start);
+                range.setEnd($scope.docElm.childNodes.item(replacements), end);
+                range.deleteContents();
 
-                    var elm = document.createElement("span");
-                    elm.innerText = v;
-                    elm.style.backgroundColor = 'yellow';
-                    elm.data = result[v];
-                    var boundHandler = $scope.handleDisplay.bind(elm, v);
-                    elm.addEventListener("click", boundHandler);
-                    range.insertNode(elm);
-                    if ($scope.docElm.childNodes.length === (childIndex + 3)) {
-                        childIndex += 2; //we + 2 because now there is at least 2 extra segments.
-                    } else {
-                        childIndex++;
-                    }
+                var elm = document.createElement("span");
+                elm.innerText = v;
+                elm.style.backgroundColor = 'yellow';
+                elm.data = result[v];
+                var boundHandler = $scope.handleDisplay.bind(elm, v);
+                elm.addEventListener("click", boundHandler);
+                range.insertNode(elm);
 
-                    range.collapse(true);
-                    range.setStart($scope.docElm.childNodes.item(childIndex), 0);
-                    range.setEnd($scope.docElm.childNodes.item(childIndex), range.startContainer.length);
-                    console.log("fooooo " + range.toString());
-                }
-                range.setStart($scope.docElm, 0);
+                replacements = $scope.docElm.childNodes.length - 1;
+                range.collapse(true);
+                range.setStart($scope.docElm.childNodes.item(replacements), 0);
+                range.setEnd($scope.docElm.childNodes.item(replacements), range.startContainer.length);
+
             });
         });
     };
 
+    $scope.lastWordActive = null;
+
     $scope.handleDisplay = function (word, me) {
+
+        if ($scope.lastWordActive) {
+            $scope.lastWordActive.style.fontWeight = "normal";
+            $scope.lastWordActive.style.backgroundColor = "";
+        }
+
+        $scope.lastWordActive = this;
+
         var ulx = document.getElementById("ulWordList");
         var words  = this.data;
 
