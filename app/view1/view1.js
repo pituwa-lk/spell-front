@@ -1,5 +1,5 @@
 'use strict';
-/var host = "http://localhost:8080";
+/////var host = "http://localhost:8080";
 var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
