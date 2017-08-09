@@ -1,6 +1,6 @@
 'use strict';
-var host = "http://localhost:8080";
-//var host = "http://spell.pituwa.lk";
+/var host = "http://localhost:8080";
+var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -29,9 +29,13 @@ angular.module('myApp.view1', ['ngRoute'])
     };
 
     $scope.checkSpell = function () {
+        document.getElementById('btnName').style.backgroundColor = "red";
+        document.getElementById('btnName').innerText = "මදක් රැදෙන්න";
         $scope.words = $scope.doc().replace(/[\u00a0]/g, " ").replace(/&nbsp;/, " ").replace(/\s+g/, " ").split(" ");
         console.log($scope.words);
         $http.post(host + "/spell", $scope.doc()).then(function (res) {
+            document.getElementById('btnName').style.backgroundColor = "";
+            document.getElementById('btnName').innerText = "හරිද?";
             var result = res.data;
             $scope.result = result;
             var range = null;
