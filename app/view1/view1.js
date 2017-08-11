@@ -65,6 +65,7 @@ angular.module('myApp.view1', ['ngRoute'])
                 range.setEnd($scope.docElm.childNodes.item(replacements), range.startContainer.length);
             });
             range.collapse(true);
+            clearSelection();
         });
     };
 
@@ -144,3 +145,11 @@ window.addEventListener('load', function() {
         }
     });
 });
+
+function clearSelection() {
+    if ( document.selection ) {
+        document.selection.empty();
+    } else if ( window.getSelection ) {
+        window.getSelection().removeAllRanges();
+    }
+}
