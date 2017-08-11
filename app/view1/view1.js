@@ -67,7 +67,7 @@ angular.module('myApp.view1', ['ngRoute'])
             range.collapse(true);
             range.setStart($scope.docElm.childNodes.item(0), 0);
             range.setEnd($scope.docElm.childNodes.item(0), 0);
-            //clearSelection();
+            sel.removeAllRanges();
         });
     };
 
