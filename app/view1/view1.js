@@ -133,11 +133,14 @@ window.addEventListener('load', function() {
     document.getElementById("pastedArea").addEventListener("paste", function(e) {
         e.preventDefault();
 
-        // get text representation of clipboard
-        var text = e.clipboardData.getData("text/plain");
-        //e.clipboardData.clearData();
-        console.log("txt");
-        // insert text manually
-        document.execCommand("insertHTML", false, text);
+        if( e.clipboardData ){
+            var text = e.clipboardData.getData('text/plain');
+            document.execCommand('insertHTML', false, text);
+        }
+        else if( window.clipboardData ){
+            var text = window.clipboardData.getData('Text');
+            if (window.getSelection)
+                window.getSelection().getRangeAt(0).insertNode( document.createTextNode(text) );
+        }
     });
 });
