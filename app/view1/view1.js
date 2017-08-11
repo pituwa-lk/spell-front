@@ -63,8 +63,8 @@ angular.module('myApp.view1', ['ngRoute'])
                 range.collapse(true);
                 range.setStart($scope.docElm.childNodes.item(replacements), 0);
                 range.setEnd($scope.docElm.childNodes.item(replacements), range.startContainer.length);
-
             });
+            range.collapse(true);
         });
     };
 
