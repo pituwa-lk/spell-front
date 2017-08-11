@@ -1,6 +1,6 @@
 'use strict';
-////var host = "http://localhost:8080";
-var host = "http://spell.pituwa.lk";
+var host = "http://localhost:8080";
+//var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -18,17 +18,15 @@ angular.module('myApp.view1', ['ngRoute'])
     $scope.doc =  function () {
         return document.getElementById("pastedArea").innerText;
     };
+
     $scope.ndoc = "";
-    $scope.result = {};
+    $scope.result = {"ගුවාම්" : ["guam"] };
     $scope.handler = {};
     $scope.buttonName = "සිංහල අක්ෂර වින්යාස පරීක්ෂාව ";
     $scope.words = [];
 
-    $scope.alertMe = function (e) {
-        $scope.docElm.innerHTML = document.getElementById("pastedArea").innerText
-    };
-
     $scope.checkSpell = function () {
+        $scope.docElm.innerHTML = document.getElementById("pastedArea").innerText;
         document.getElementById('btnName').style.backgroundColor = "red";
         document.getElementById('btnName').innerText = "මදක් රැදෙන්න";
         $scope.words = $scope.doc().replace(/[\u00a0]/g, " ").replace(/&nbsp;/, " ").replace(/\s+g/, " ").split(" ");
@@ -40,11 +38,10 @@ angular.module('myApp.view1', ['ngRoute'])
             $scope.result = result;
             var range = null;
             var sel = window.getSelection();
-            if (sel.rangeCount > 0) {
-                range = sel.getRangeAt(0).cloneRange();
-                range.collapse(true);
-                range.setStart($scope.docElm, 0);
-            }
+            range = document.createRange();
+            range.selectNodeContents($scope.docElm);
+            sel.addRange(range);
+
             var replacements = 0;
             $scope.words.forEach(function (v) {
                 if (!result[v]) return;
@@ -132,3 +129,15 @@ angular.module('myApp.view1', ['ngRoute'])
     };
 
 }]);
+window.addEventListener('load', function() {
+    document.getElementById("pastedArea").addEventListener("paste", function(e) {
+        e.preventDefault();
+
+        // get text representation of clipboard
+        var text = e.clipboardData.getData("text/plain");
+        //e.clipboardData.clearData();
+        console.log("txt");
+        // insert text manually
+        document.execCommand("insertHTML", false, text);
+    });
+});
