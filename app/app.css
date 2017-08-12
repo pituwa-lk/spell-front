@@ -14,7 +14,7 @@ h1, .h1 {
   font-family: warna;
   src: url(/fonts/warna.ttf);
 }
-body, textarea, div, span, button {
+body, textarea, div, span, button, footer {
   font-family: warna;
 }
 textarea, div, span, button {
