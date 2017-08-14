@@ -1,6 +1,7 @@
 'use strict';
-//////var host = "http://localhost:8080";
-var host = "http://spell.pituwa.lk";
+var wordList = null;
+var host = "http://localhost:8080";
+//var host = "http://spell.pituwa.lk";
 angular.module('myApp.view1', ['ngRoute'])
 
 .config(['$routeProvider', function($routeProvider) {
@@ -25,13 +26,18 @@ angular.module('myApp.view1', ['ngRoute'])
     $scope.buttonName = "සිංහල අක්ෂර වින්යාස පරීක්ෂාව ";
     $scope.words = [];
 
+    var theUltimateRegexp = /[^\u0D80-\u0DFF\u200D\s]/g
+
     $scope.checkSpell = function () {
         $scope.docElm.innerHTML = document.getElementById("pastedArea").innerText;
         document.getElementById('btnName').style.backgroundColor = "red";
         document.getElementById('btnName').innerText = "මදක් රැදෙන්න";
-        $scope.words = $scope.doc().replace(/[\u00a0]/g, " ").replace(/&nbsp;/, " ").replace(/\s+g/, " ").split(" ");
+        $scope.words = $scope.doc().replace(/&nbsp;/g, " ").replace(/\s+/g, " ").split(" "); //කොන්ද රිද වාම ර්හ ෙප කපිට පුල ොනාඅල් ලාිකෛා්ය ේදාන් නඔ
+        $scope.sanetized = $scope.words.map(function (v) { return v.replace(theUltimateRegexp, ""); });
         console.log($scope.words);
-        $http.post(host + "/spell", $scope.doc()).then(function (res) {
+        var payload = $scope.doc();
+        payload = payload.replace(theUltimateRegexp, "");
+        $http.post(host + "/spell", payload).then(function (res) {
             document.getElementById('btnName').style.backgroundColor = "";
             document.getElementById('btnName').innerText = "හරිද?";
             var result = res.data;
@@ -43,16 +49,17 @@ angular.module('myApp.view1', ['ngRoute'])
             sel.addRange(range);
 
             var replacements = 0;
-            $scope.words.forEach(function (v) {
+            $scope.sanetized.forEach(function (v, k) {
                 if (!result[v]) return;
-                var start = range.toString().indexOf(v);
-                var end = start + v.length;
+                var lookup = $scope.words[k];
+                var start = range.toString().indexOf(lookup);
+                var end = start + lookup.length;
                 range.setStart($scope.docElm.childNodes.item(replacements), start);
                 range.setEnd($scope.docElm.childNodes.item(replacements), end);
                 range.deleteContents();
 
                 var elm = document.createElement("span");
-                elm.innerText = v;
+                elm.innerText = lookup;
                 elm.style.backgroundColor = 'yellow';
                 elm.data = result[v];
                 var boundHandler = $scope.handleDisplay.bind(elm, v);
@@ -94,6 +101,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
         words.forEach(function (v, k) {
             var li = document.createElement("li");
+
             li.innerHTML = v;
             li.addEventListener("mouseover", function (e) {
                e.srcElement.style.backgroundColor = "#34c3ef";
@@ -107,7 +115,7 @@ angular.module('myApp.view1', ['ngRoute'])
             });
 
             li.addEventListener("click", function (e) {
-                that.innerText = this.innerText;
+                that.innerText = that.innerText.replace(word, this.innerText);
                 wordList.style.display = "none";
                 that.style.fontWeight = "normal";
                 that.style.backgroundColor = "";
@@ -124,7 +132,7 @@ angular.module('myApp.view1', ['ngRoute'])
 
         this.style.opacity = 1.0;
         this.style.fontWeight = 800;
-        var wordList = document.getElementById("wordList");
+        wordList = document.getElementById("wordList");
         var writePad = document.getElementById("writePad");
         wordList.style.top = me.pageY + "px";
         wordList.style.left = (me.pageX + 25) + "px";
@@ -132,7 +140,14 @@ angular.module('myApp.view1', ['ngRoute'])
     };
 
 }]);
+
 window.addEventListener('load', function() {
+
+    document.addEventListener("click", function (e) {
+        console.log(e);
+       if (e.originalTarget && e.originalTarget.localName != "span" && wordList.style.display === "block") wordList.style.display = "none";
+    });
+
     document.getElementById("pastedArea").addEventListener("paste", function(e) {
         e.preventDefault();
 
